@@ -26,6 +26,7 @@ int main()
 	//const int ajouts[] =   { 1, 3, 5, 10, 15, 25, 35, 40, 45 };
 	
 	for (size_t i{ 0 }; i < 9; i++) {
+		//arbreAVL.AjouterArbreMain(ajouts[i]);
 		arbreAVL.AjouterArbreMain(ajouts[i]);
 	}
 	

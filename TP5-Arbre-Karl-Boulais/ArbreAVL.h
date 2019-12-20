@@ -35,6 +35,13 @@ struct ArbreAVL
 	/********************************************************************************************************************/
 												//FONCTION DE SOUTIENS//
 	/********************************************************************************************************************/
+	int Max(int gauche, int droite)
+	{
+		int max = (gauche > droite) ? gauche : droite;
+		return max;
+	}
+
+	
 	char CompareValeur(T valeurPointeur, T valeurAjouter) {
 
 		if (valeurAjouter < valeurPointeur)
@@ -43,6 +50,14 @@ struct ArbreAVL
 			return '>';
 		else
 			return '=';
+	}
+
+	size_t TrouvezLePlusPetit(Noeud<T>* pointeur) {
+
+		if (pointeur->_gauche != NULL)
+			return TrouvezLePlusPetit(pointeur->_gauche);
+		else
+			return pointeur->_valeur;
 	}
 
 	Noeud<T>* TrouverUneValeurMain(T valeur) {
@@ -69,44 +84,38 @@ struct ArbreAVL
 
 	int calculerHauteur()
 	{
-
 		return calculerHauteurRecursif(_arbre->_racine);
+	}
+	int calculerHauteur(Noeud<T>* noeud)			/*Fonction récursive pour calculer la hauteur d'un seul noeud*/
+	{
+		if (noeud == NULL)
+			return -1;
+		else
+			return Max(calculerHauteur(noeud->_gauche), calculerHauteur(noeud->_droite)) + 1;
 	}
 
 	int calculerHauteurRecursif(Noeud<T>* noeud)
-	{																   // Pour calculer la hauteur, il faut procédé par étape
-		if (noeud == NULL)											   //1: Si le noeud est NULL on retourne 0;
-			return 0;												   //
-		int MaxGauche = calculerHauteurRecursif(noeud->_gauche);	   //2: On évalue le sous arbre gauche
-		int MaxDroit = calculerHauteurRecursif(noeud->_droite);		   //3: On évalue le sous arbre droit 
-		int max = ((MaxGauche > MaxDroit) ? MaxGauche : MaxDroit);	   //4: On détermine le maximum entre les 2
-		return max + 1;													// Une fois qu'on a rencontrer null une fois, on ajoute 1 pour chacuns des noeuds qu'on croise
+	{																
+		if (noeud == NULL)											  
+			return 0;												   
+		int MaxGauche = calculerHauteurRecursif(noeud->_gauche);	   
+		int MaxDroit = calculerHauteurRecursif(noeud->_droite);		    
+		int max = ((MaxGauche > MaxDroit) ? MaxGauche : MaxDroit);	   
+		return max + 1;													
 	}
 
-	size_t CalculerLaHauteurArbre() {
-		size_t gauche = HauteurBrancheGauche(_arbre->_racine);
-		size_t droite = HauteurBrancheDroite(_arbre->_racine);
-		return (( gauche > droite) ? gauche : droite)+1;
-
-	}
-
-	size_t HauteurBrancheGauche(Noeud<T>* pointeur) {
-		if (pointeur == NULL)
-			return 0;
-		size_t brancheGauche = (HauteurBrancheGauche(pointeur->_gauche)+1);
-	}
-	size_t HauteurBrancheDroite(Noeud<T>* pointeur) {
-		if (pointeur == NULL)
-			return 0;
-		size_t brancheDroite = (HauteurBrancheDroite(pointeur->_gauche)+1);
-	}
-
-	size_t TrouvezLePlusPetit(Noeud<T>* pointeur) {
-
-		if (pointeur->_gauche != NULL)
-			return TrouvezLePlusPetit(pointeur->_gauche);
+	/*Fonction pour mettre à jour la hauteur de chacun des noeuds en partant de la fin*/
+	void MiseAJourHauteur(Noeud<T>* noeud) 
+	{
+		if (noeud == NULL)
+			return;
 		else
-			return pointeur->_valeur;
+		{
+			MiseAJourHauteur(noeud->_gauche);
+			noeud->_hauteur = calculerHauteur(noeud);
+			MiseAJourHauteur(noeud->_droite);
+		}
+
 	}
 	/********************************************************************************************************************/
 														//AJOUT//
@@ -121,7 +130,7 @@ struct ArbreAVL
 		noeud->_droite = NULL;
 		if (_arbre->_racine != NULL)
 			noeud->_parent = pointeur;
-
+		//TestDebalancement(noeud);
 		return noeud;
 	}
 
@@ -157,6 +166,7 @@ struct ArbreAVL
 			}
 
 		}
+		TestDebalancement(pointeur);
 	}
 
 	/********************************************************************************************************************/
@@ -280,20 +290,70 @@ struct ArbreAVL
 	/********************************************************************************************************************/
 														//BALANCEMENT//
 	/********************************************************************************************************************/
-	int Equilibre(Noeud<T>* noeud) /*Fonction de calcul de l'équilibre d'une branche */
+	void TestDebalancement(Noeud<T>* nouveauNoeud ) {
+		Noeud<T>* NoeudDebalance = NULL;
+		size_t compteur{0};
+		MiseAJourHauteur(_arbre->_racine);
+		if (_arbre->_hauteur > 1) {
+
+			/*On trouve et on assigne le noeud débalancé le plus proche du dernier ajout */
+			NoeudDebalance = TrouverDebalancement(nouveauNoeud); 
+
+			/*Le il y a débalancement dans l'arbre, on procède au test pour effectuer les rotations*/
+			if (NoeudDebalance != NULL)
+			{
+				
+				/*Si l'équilibre est plus grand que 1, on sait que le déséquilibre arrive dans le sous-arbre gauche*/
+				/*Si la valeur du dernier ajout est plus petite que la valeur du noeud débalancé, on sait qu'il s'agit de l'enfant gauche*/
+
+				if (Equilibre(NoeudDebalance) > 1 && nouveauNoeud->_valeur < NoeudDebalance->_gauche->_valeur){/*Gauche Gauche*/
+					compteur++;
+					cout << "Debalancement " << compteur << " - Gauche gauche" << endl;
+					RotationDroite(NoeudDebalance);
+				}
+				
+				if (Equilibre(NoeudDebalance) > 1 && nouveauNoeud->_valeur > NoeudDebalance->_gauche->_valeur){/*Gauche Droite*/
+					compteur++;
+					cout << "Debalancement " << compteur << " - Gauche droite" << endl;
+					RotationGauche(NoeudDebalance->_gauche);
+					RotationDroite(NoeudDebalance);
+				}
+				
+				if (Equilibre(NoeudDebalance) < -1 && nouveauNoeud->_valeur > NoeudDebalance->_droite->_valeur){/*Droite Droite*/
+					compteur++;
+					cout << "Debalancement " << compteur << " - Droite droite" << endl;
+					RotationGauche(NoeudDebalance);
+				}
+				
+				if (Equilibre(NoeudDebalance) < -1 && nouveauNoeud->_valeur < NoeudDebalance->_droite->_valeur){/*Droite Gauche*/
+					compteur++;
+					cout << "Debalancement " << compteur << " - Droite gauche" << endl;
+					RotationDroite(NoeudDebalance->_droite);
+					RotationGauche(NoeudDebalance);
+				}
+			}
+		}
+	}
+	/*Fonction de calcul de l'équilibre d'une branche */
+	int Equilibre(Noeud<T>* noeud) 
 	{
 		int balance_factor, hauteurD, hauteurG;
-		if (noeud->_droite != NULL) { hauteurD = (noeud->_droite->_hauteur) + 1; }
-		else hauteurD = 0;
-		if (noeud->_gauche != NULL) { hauteurG = (noeud->_gauche->_hauteur) + 1; }
-		else hauteurG = 0;
+		if (noeud->_droite != NULL)
+			hauteurD = (noeud->_droite->_hauteur) + 1;
+		else 
+			hauteurD = 0 ;
+		if (noeud->_gauche != NULL)
+			hauteurG = (noeud->_gauche->_hauteur) + 1;
+		else 
+			hauteurG = 0 ;
 
 		balance_factor = hauteurG - hauteurD;
 
 		return balance_factor;
 	}
+
 	/*Fonction pour trouver et retourné le noeud débalancé en paratant du dernier ajout*/
-	Noeud<T>* ParcourirArbre(Noeud<T>* noeud)
+	Noeud<T>* TrouverDebalancement(Noeud<T>* noeud)
 	{
 		if (noeud == NULL)
 			return NULL;
@@ -301,10 +361,10 @@ struct ArbreAVL
 		else if (Equilibre(noeud) < -1 || Equilibre(noeud) > 1)
 			return noeud;
 		else
-			ParcourirArbre(noeud->_parent);
+			TrouverDebalancement(noeud->_parent);
 	}
 
-	void rotationnerGauche(Noeud<T>* pivot)
+	void RotationGauche(Noeud<T>* pivot)
 	{
 		Noeud<T>* Temp1 = pivot->_droite;
 		Noeud<T>* Temp2 = Temp1->_gauche;
@@ -322,10 +382,10 @@ struct ArbreAVL
 			Temp1->_parent->_gauche = Temp1;
 		else if (Temp1->_valeur >= Temp1->_parent->_valeur)
 			Temp1->_parent->_droite = Temp1;
-		//afficherGraphique();
+		
 
 	}
-	void rotationnerDroite(Noeud<T>* pivot)
+	void RotationDroite(Noeud<T>* pivot)
 	{
 		Noeud<T>* Temp1 = pivot->_gauche;
 		Noeud<T>* Temp2 = Temp1->_droite;
@@ -343,7 +403,7 @@ struct ArbreAVL
 			Temp1->_parent->_gauche = Temp1;
 		else if (Temp1->_valeur >= Temp1->_parent->_valeur)
 			Temp1->_parent->_droite = Temp1;
-		//afficherGraphique();
+		
 	}
 
 
@@ -430,6 +490,7 @@ struct ArbreAVL
 		int indexParent = 0;
 
 		_arbre->_hauteur = calculerHauteur();
+
 		while (_arbre->_hauteur > 0)
 		{
 			if (noeuds.empty())
@@ -524,81 +585,3 @@ struct ArbreAVL
 
 };
 
-/*****************************************************************************************************************************************/
-
-//Affichage custom
-
-//	int get_tree_height(node<T>* root) const
-//	{
-//		if (root == nullptr) return 0;
-//		const int left_height = get_tree_height(root->get_left());
-//		const int right_height = get_tree_height(root->get_right());
-//		return left_height > right_height ? left_height + 1 : right_height + 1;
-//	}
-//
-//	
-//	int get_nodes_count(int level)
-//	{
-//		//return int(pow(2, level));
-//		return int(pow(2, level));
-//	}
-//
-//	
-//	int get_subtree_width(int level)
-//	{
-//		const auto levels_below = tree_height_ - level - 1;
-//		const auto nodes_count = get_nodes_count(levels_below);
-//		const auto spaces_count = nodes_count - 1;
-//		return node_length_ * nodes_count + space_length_ * spaces_count;
-//	}
-//
-//	void visualize()
-//	{
-//
-//		size_t last_level = _arbre->_hauteur - 1;
-//
-//
-//		for (size_t level{ 0 }; level < _arbre->_hauteur; level++)
-//		{
-//			size_t nodes_count = get_nodes_count(level);
-//			size_t last_node = nodes_count - 1;
-//			size_t subtree_width = get_subtree_width(level);
-//			size_t node_indentation = subtree_width / 2 - node_shift_factor_;
-//			size_t nodes_spacing = subtree_width - 2 * (node_shift_factor_ - space_shift_factor_);
-//			size_t branch_height = (subtree_width + 1) / 4;
-//
-//			cout << std::string(node_indentation, ' ');
-//
-//			for (auto node = 0; node < nodes_count; node++)
-//			{
-//				const auto node_value = values_[level][node].empty() ? empty_node_ : values_[level][node];
-//				cout << setw(node_length_) << setfill('0') << node_value;
-//				cout << std::string(nodes_spacing * (node != last_node), ' ');
-//			}
-//
-//			cout << endl;
-//
-//			for (size_t i = 0; i < branch_height && level != last_level; i++)
-//			{
-//				size_t branch_indentation = subtree_width / 2 - 1 - i;
-//				cout << std::string(branch_indentation, ' ');
-//
-//				for (size_t node = 0; node < nodes_count; node++)
-//				{
-//					size_t has_left_child = !values_[level + 1][2 * node].empty();
-//					size_t has_right_child = !values_[level + 1][2 * node + 1].empty();
-//					size_t branch_width = node_type_ + 2 * i;
-//					size_t branches_spacing = nodes_spacing + 2 * (node_shift_factor_ - 1 - i);
-//
-//					cout << (has_left_child ? '/' : ' ');
-//					cout << std::string(branch_width, ' ');
-//					cout << (has_right_child ? '\\' : ' ');
-//					cout << std::string(branches_spacing * (node != last_node), ' ');
-//				}
-//
-//				cout << endl;
-//			}
-//		}
-//
-//	}
-//};
