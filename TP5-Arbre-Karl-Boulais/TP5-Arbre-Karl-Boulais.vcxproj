@@ -123,13 +123,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.cpp" />
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.cpp" />
+    <ClCompile Include="Affichage.cpp" />
+    <ClCompile Include="cvm.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\ArbreAVL.h" />
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.h" />
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.h" />
+    <ClInclude Include="Affichage.h" />
+    <ClInclude Include="ArbreAVL.h" />
+    <ClInclude Include="cvm.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
