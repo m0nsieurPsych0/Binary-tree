@@ -18,6 +18,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArbreAVL.h" />
+    <ClInclude Include="cvm.h" />
+    <ClInclude Include="main.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvm.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{8B9616D3-7247-4E2F-BF32-AEF1F67D4730}</ProjectGuid>
@@ -122,15 +131,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.cpp" />
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\ArbreAVL.h" />
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.h" />
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

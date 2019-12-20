@@ -15,22 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.cpp">
+    <ClInclude Include="ArbreAVL.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.cpp">
+    </ClInclude>
+    <ClInclude Include="cvm.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\cvm.h">
+    <ClCompile Include="cvm.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\main.h">
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="E:\Nextcloud\cegep\2019 - session 3 - Automne\Structure de donnée\TP5\Tp-Arbre-Karl-Boulais\ArbreAVL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
 </Project>
