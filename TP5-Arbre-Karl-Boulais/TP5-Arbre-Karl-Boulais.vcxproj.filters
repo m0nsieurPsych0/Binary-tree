@@ -24,7 +24,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FonctionOutil.cpp">
+    <ClCompile Include="userInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="cvm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FonctionOutil.h">
+    <ClInclude Include="userInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef main.h
 #include"main.h"
 #endif // !main.h
