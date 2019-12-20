@@ -1,6 +1,11 @@
+#pragma once
 #ifndef main.h
 #include"main.h"
 #endif // !main.h
+#ifndef Affichage.h
+#include "Affichage.h"
+#endif // !Affichage.h
+
 
 #include <iostream>
 #include <vector>
@@ -8,88 +13,319 @@
 #include <iomanip>
 
 
+
 template<typename T>
 struct ArbreAVL
 {
-	/*Création de la structure noeud avec l'ajout du paramètre hauteur pour facilité le calcul de l'équilibre*/
+
 	template<typename T>
 	struct Noeud
 	{
 		T _valeur{};
-		Noeud<T>* _racine{NULL};
-		Noeud<T>* _droite{NULL};
-		Noeud<T>* _gauche{NULL};
-		Noeud<T>* _parent{NULL};
+		Noeud<T>* _racine{ NULL };
+		Noeud<T>* _droite{ NULL };
+		Noeud<T>* _gauche{ NULL };
+		Noeud<T>* _parent{ NULL };
 		int _debalancement{};
 		size_t _hauteur{};
 
-		
 	};
 	Noeud<T>* _arbre = new Noeud<T>;
-	
 
-
-
-	bool ValeurPresente(T valeur) {
-		
-	}
-
-	bool PlusPetit(T valeurPointeur, T valeurAjouter) {
+	/********************************************************************************************************************/
+												//FONCTION DE SOUTIENS//
+	/********************************************************************************************************************/
+	char CompareValeur(T valeurPointeur, T valeurAjouter) {
 
 		if (valeurAjouter < valeurPointeur)
-			return true;
+			return '<';
+		else if (valeurAjouter > valeurPointeur)
+			return '>';
 		else
-			return false;
+			return '=';
 	}
 
-	Noeud<T>* AjouterNoeud(Noeud<T>* parent, T valeur) {
+	Noeud<T>* TrouverUneValeurMain(T valeur) {
+		return TrouverUneValeur(_arbre->_racine, valeur);
+	}
 
-		Noeud<T>* noeud = new Noeud<T>*;
+	Noeud<T>* TrouverUneValeur(Noeud<T>* pointeur, T valeur) {
+
+		if (pointeur != NULL) {
+			if (pointeur->_valeur == valeur) {
+				return pointeur;
+			}
+			else {
+				switch (CompareValeur(pointeur->_valeur, valeur)) {
+				case '<':	return TrouverUneValeur(pointeur->_gauche, valeur);
+
+				case '>':	return TrouverUneValeur(pointeur->_droite, valeur);
+				}
+			}
+		}
+		else
+			return NULL;
+	}
+
+	/*size_t CalculerLaHauteurArbre() {
+		size_t gauche = HauteurBrancheGauche(_arbre->_racine);
+		size_t droite = HauteurBrancheDroite(_arbre->_racine);
+		return (( gauche > droite) ? gauche : droite) + 1;
+	}
+
+	size_t HauteurBrancheGauche(Noeud<T>* pointeur) {
+		if (pointeur == NULL)
+			return 0;
+		size_t brancheGauche = HauteurBrancheGauche(pointeur->_gauche);
+	}
+	size_t HauteurBrancheDroite(Noeud<T>* pointeur) {
+		if (pointeur == NULL)
+			return 0;
+		size_t brancheDroite = HauteurBrancheDroite(pointeur->_gauche);
+	}*/
+
+
+	size_t TrouvezLePlusPetit(Noeud<T>* pointeur) {
+
+		if (pointeur->_gauche != NULL)
+			return TrouvezLePlusPetit(pointeur->_gauche);
+		else
+			return pointeur->_valeur;
+	}
+	/********************************************************************************************************************/
+														//AJOUT//
+	/********************************************************************************************************************/
+
+	Noeud<T>* AjouterNoeud(Noeud<T>* pointeur, T valeur) {
+
+		Noeud<T>* noeud = new Noeud<T>;
+		//noeud = pointeur;
 		noeud->_valeur = valeur;
 		noeud->_gauche = NULL;
-		noeud->_droit = NULL;
-		noeud->_parent = parent;
+		noeud->_droite = NULL;
+		if (_arbre->_racine != NULL)
+			noeud->_parent = pointeur;
 
 		return noeud;
 	}
 
+	void AjouterArbreMain(T valeur) {
+		AjouterArbre(_arbre->_racine, valeur);
+	}
 
 	void AjouterArbre(Noeud<T>* pointeur, T valeur) {
 
-		if (pointeur->_valeur == NULL) {
-			_arbre->_racine->_valeur = valeur;
-			_arbre->_racine->_gauche = NULL;
-			_arbre->_racine->_droite = NULL;
+		if (_arbre->_racine == NULL) {
+			_arbre->_racine = AjouterNoeud(pointeur, valeur);
 		}
-		switch (PlusPetit(pointeur->_valeur, valeur)) {
-			case true://Va à gauche
+		else {
+			switch (CompareValeur(pointeur->_valeur, valeur)) {
+			case '<'://Va à gauche
 				if (pointeur->_gauche != NULL) {
 					AjouterArbre(pointeur->_gauche, valeur);
 				}
 				else {
 					pointeur->_gauche = AjouterNoeud(pointeur, valeur);
 				}
-			case false://Va à droite
+				break;
+			case '>'://Va à droite
 				if (pointeur->_droite != NULL) {
-					AjouterArbre(pointeur->_droit, valeur);
+					AjouterArbre(pointeur->_droite, valeur);
 				}
 				else {
-					pointeur->_droit = AjouterNoeud(pointeur, valeur);
+					pointeur->_droite = AjouterNoeud(pointeur, valeur);
 				}
+				break;
+			case '='://Choisir une autre valeur
+				ValeurDejaPresente(valeur);
+			}
 
 		}
-		
-		else if (valeur < pointeur->_valeur) {
-			if (pointeur->_gauche != NULL) {
-				Ajouter(pointeur->_gauche, valeur);
+	}
+
+	/********************************************************************************************************************/
+														//RETIRER//
+	/********************************************************************************************************************/
+	//removeMatch()
+	void RetirerUneValeur(Noeud<T>* pointeur, Noeud<T>* match, bool enfantGauche) {//bool enfantGauche = si c'est vrai c'est la valeur de gauche
+		if (_arbre->_racine != NULL) {
+			Noeud<T>* delPointeur;
+			T valeurMatch = match->_valeur;
+			T LePlusPetitDansDroit;
+
+			//Cas 1 -> 0 enfant ni à Gauche ni à Droite
+			if (match->_gauche == NULL && match->_droite == NULL) {
+
+				delPointeur = match;
+				enfantGauche == true ? pointeur->_gauche = NULL : pointeur->_droite = NULL;
+				delete delPointeur;
 			}
+			//Cas 2 -> 1 enfant à Droite
+			else if (match->_gauche == NULL && match->_droite != NULL) {
+
+				enfantGauche == true ? pointeur->_gauche = match->_droite : pointeur->_droite = match->_droite;
+				match->_droite = NULL;
+				delPointeur = match;
+				delete delPointeur;
+
+			}
+			//Cas 3 -> 1 enfant à Gauche
+			else if (match->_gauche != NULL && match->_droite == NULL) {
+
+				enfantGauche == true ? pointeur->_gauche = match->_gauche : pointeur->_droite = match->_gauche;
+				match->_gauche = NULL;
+				delPointeur = match;
+				delete delPointeur;
+			}
+			//Cas 4 -> 2 enfants
 			else {
-				pointeur->_gauche = AjouterNoeud(pointeur, valeur);
+
+				LePlusPetitDansDroit = TrouvezLePlusPetit(match->_droite);
+				RetirerNoeud(match, LePlusPetitDansDroit);
+				match->_valeur = LePlusPetitDansDroit;
+			}
+
+		}
+		else {
+			//Erreur l'arbre est vide
+		}
+
+
+	}
+	//RemoveRootMatch()
+	void RetirerLaRacine() {
+		if (_arbre->_racine != NULL) {
+			Noeud<T>* delPointeur = _arbre->_racine;
+			//T valeurRacine = _arbre->_racine->_valeur;
+			T LePlusPetitDansDroit{};
+
+			//Cas 1 -> 0 enfant Gauche-Droite
+			if (_arbre->_racine->_gauche == NULL && _arbre->_racine->_droite == NULL) {
+
+				_arbre->_racine = NULL;
+				delete delPointeur;
+			}
+			//Cas 2 -> 1 enfant à Droite
+			else if (_arbre->_racine->_gauche == NULL && _arbre->_racine->_droite != NULL) {
+
+				_arbre->_racine = _arbre->_racine->_droite;
+				delPointeur->_droite = NULL;
+				delete delPointeur;
+
+			}
+			//Cas 3 -> 1 enfant à Gauche
+			else if (_arbre->_racine->_gauche != NULL && _arbre->_racine->_droite == NULL) {
+
+				_arbre->_racine = _arbre->_racine->_gauche;
+				delPointeur->_gauche = NULL;
+				delete delPointeur;
+			}
+			//Cas 4 -> 2 enfants
+			else {
+
+				LePlusPetitDansDroit = TrouvezLePlusPetit(_arbre->_racine->_droite);
+				RetirerNoeud(_arbre->_racine, LePlusPetitDansDroit);
+				_arbre->_racine->_valeur = LePlusPetitDansDroit;
 			}
 		}
 		else
+			cout << "erreur";//Message d'erreur
+
 	}
 
+	void RetirerNoeudMain(T valeur) {
+		RetirerNoeud(_arbre->_racine, valeur);
+	}
+	//RemoveNode()
+	void RetirerNoeud(Noeud<T>* pointeur, T valeur) {
+
+		if (_arbre->_racine != NULL) {
+			if (_arbre->_racine->_valeur == valeur)
+				RetirerLaRacine();
+			else {
+				if (valeur < pointeur->_valeur && pointeur->_gauche != NULL) {
+					pointeur->_gauche->_valeur == valeur ?
+						RetirerUneValeur(pointeur, pointeur->_gauche, true) :
+						RetirerNoeud(pointeur->_gauche, valeur);
+				}
+				else if (valeur > pointeur->_valeur&& pointeur->_droite != NULL) {
+					pointeur->_droite->_valeur == valeur ?
+						RetirerUneValeur(pointeur, pointeur->_droite, false) :
+						RetirerNoeud(pointeur->_droite, valeur);
+				}
+				else
+					cout << "Erreur la valeur est absente";
+			}
+
+		}
+		else
+			cout << "L'arbre est vide";
+	}
+
+
+
+	/********************************************************************************************************************/
+														//PARCOURS//
+	/********************************************************************************************************************/
+	void ParcourInfixe(Noeud<T>* pointeur)
+	{
+		if (pointeur != NULL)
+		{
+			ParcourInfixe(pointeur->_gauche);
+			ParcoursValeur(pointeur->_valeur);
+			ParcourInfixe(pointeur->_droite);
+		}
+	}
+	void ParcourPrefixe(Noeud<T>* pointeur)
+	{
+		if (pointeur != NULL)
+		{
+			ParcoursValeur(pointeur->_valeur);
+			ParcourPrefixe(pointeur->_gauche);
+			ParcourPrefixe(pointeur->_droite);
+		}
+	}
+
+	void ParcourPostfixe(Noeud<T>* pointeur)
+	{
+		if (pointeur != NULL)
+		{
+			ParcourPostfixe(pointeur->_gauche);
+			ParcourPostfixe(pointeur->_droite);
+			ParcoursValeur(pointeur->_valeur);
+		}
+	}
+	/********************************************************************************************************************/
+														//AFFICHAGE//
+	/********************************************************************************************************************/
+	void ValeurDejaPresente(T valeur) {
+		clrscr();
+		cout << endl << endl << "\t La valeur " << valeur << " que vous voulez ajouter existe déjà!";
+	}
+
+	void ParcoursValeur(T valeur) {
+		cout << "->" << valeur;
+	}
+
+	void AfficherParcours() {
+		cout << "Parcours Infixe: " << endl;
+		ParcourInfixe(_arbre->_racine);
+		cout << endl << endl << "Parcours Postfixe: " << endl;
+		ParcourPostfixe(_arbre->_racine);
+		cout << endl << endl << "Parcours prefixe: " << endl;
+		ParcourPrefixe(_arbre->_racine);
+
+	}
+
+	void AfficherUneValeur(T valeur) {
+		Noeud<T>* pointeur = TrouverUneValeur(valeur);
+
+		if (pointeur != NULL)
+			cout << pointeur->_valeur;
+
+		else
+			cout << "La valeur " << valeur << " ne se trouve pas dans l'arbre!";
+	}
 
 	//void afficherGraphique()
 	//{
@@ -203,12 +439,12 @@ struct ArbreAVL
 	//	cout << "\n";
 	//}
 
-}; 
+};
 
-	/*****************************************************************************************************************************************/
+/*****************************************************************************************************************************************/
 
-	//Affichage custom
-	
+//Affichage custom
+
 //	int get_tree_height(node<T>* root) const
 //	{
 //		if (root == nullptr) return 0;

@@ -125,12 +125,14 @@
   <ItemGroup>
     <ClCompile Include="Affichage.cpp" />
     <ClCompile Include="cvm.cpp" />
+    <ClCompile Include="FonctionOutil.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Affichage.h" />
     <ClInclude Include="ArbreAVL.h" />
     <ClInclude Include="cvm.h" />
+    <ClInclude Include="FonctionOutil.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

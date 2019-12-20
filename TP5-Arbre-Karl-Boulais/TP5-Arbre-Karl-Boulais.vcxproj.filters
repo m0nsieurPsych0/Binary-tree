@@ -24,6 +24,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FonctionOutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Affichage.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cvm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FonctionOutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
