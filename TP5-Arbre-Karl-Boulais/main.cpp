@@ -23,18 +23,22 @@ int main()
 	ArbreAVL<int> arbreAVL;
 
 	const int ajouts[] = { 15, 10, 5, 1, 3, 25, 35, 45, 40 };
+	//const int ajouts[] =   { 1, 3, 5, 10, 15, 25, 35, 40, 45 };
 	
 	for (size_t i{ 0 }; i < 9; i++) {
 		arbreAVL.AjouterArbreMain(ajouts[i]);
 	}
 	
-	arbreAVL.AfficherParcours();
+	//cout << arbreAVL.CalculerLaHauteurArbre();
 
-	int input{ 25 };
-	arbreAVL.RetirerNoeudMain(input);
+	//arbreAVL.AfficherParcours();
+
+	//int input{ 25 };
+	//arbreAVL.RetirerNoeudMain(input);
 
 	//cout << endl << arbreAVL.TrouvezLePlusPetit(arbreAVL._arbre->_racine);
-	arbreAVL.AfficherParcours();
+	//arbreAVL.AfficherParcours();
+	arbreAVL.afficherGraphique();
 
 	_getch();
 
