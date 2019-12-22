@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <Windows.h>
 
 
 
@@ -81,41 +82,14 @@ struct ArbreAVL
 			return NULL;
 	}
 
-	int calculerHauteur()
+	int calculerHauteur(Noeud<T>* noeud)
 	{
-		return calculerHauteurRecursif(_arbre->_racine);
-	}
-	int calculerHauteur(Noeud<T>* noeud)			/*Fonction récursive pour calculer la hauteur d'un seul noeud*/
-	{
-		if (noeud == NULL)
+		if (noeud == NULL) 
 			return -1;
-		else
-			return Max(calculerHauteur(noeud->_gauche), calculerHauteur(noeud->_droite)) + 1;
+		return Max(calculerHauteur(noeud->_droite), calculerHauteur(noeud->_gauche)) + 1;
 	}
+	
 
-	int calculerHauteurRecursif(Noeud<T>* noeud)
-	{																
-		if (noeud == NULL)											  
-			return 0;												   
-		int MaxGauche = calculerHauteurRecursif(noeud->_gauche);	   
-		int MaxDroit = calculerHauteurRecursif(noeud->_droite);		    
-		int max = ((MaxGauche > MaxDroit) ? MaxGauche : MaxDroit);	   
-		return max + 1;													
-	}
-
-	/*Fonction pour mettre à jour la hauteur de chacun des noeuds en partant de la fin*/
-	void MiseAJourHauteur(Noeud<T>* noeud) 
-	{
-		if (noeud == NULL)
-			return;
-		else
-		{
-			MiseAJourHauteur(noeud->_gauche);
-			noeud->_hauteur = calculerHauteur(noeud);
-			MiseAJourHauteur(noeud->_droite);
-		}
-
-	}
 	/********************************************************************************************************************/
 														//AJOUT//
 	/********************************************************************************************************************/
@@ -129,8 +103,8 @@ struct ArbreAVL
 		noeud->_droite = NULL;
 		if (_arbre->_racine != NULL)
 			noeud->_parent = pointeur;
-		//TestDebalancement(noeud);
-		return noeud;
+		//return noeud;
+		return Balancement(noeud);
 	}
 
 	void AjouterArbreMain(T valeur) {
@@ -139,6 +113,7 @@ struct ArbreAVL
 
 	void AjouterArbre(Noeud<T>* pointeur, T valeur) {
 
+		//Détermine la racine
 		if (_arbre->_racine == NULL) {
 			_arbre->_racine = AjouterNoeud(pointeur, valeur);
 		}
@@ -165,13 +140,13 @@ struct ArbreAVL
 			}
 
 		}
-		TestDebalancement(pointeur);
+	
 	}
 
 	/********************************************************************************************************************/
 														//RETIRER//
 	/********************************************************************************************************************/
-	//removeMatch()
+	
 	void RetirerUneValeur(Noeud<T>* pointeur, Noeud<T>* match, bool enfantGauche) {//bool enfantGauche = si c'est vrai c'est la valeur de gauche
 		if (_arbre->_racine != NULL) {
 			Noeud<T>* delPointeur;
@@ -217,7 +192,7 @@ struct ArbreAVL
 
 
 	}
-	//RemoveRootMatch()
+	
 	void RetirerLaRacine() {
 		if (_arbre->_racine != NULL) {
 			Noeud<T>* delPointeur = _arbre->_racine;
@@ -261,7 +236,7 @@ struct ArbreAVL
 	void RetirerNoeudMain(T valeur) {
 		RetirerNoeud(_arbre->_racine, valeur);
 	}
-	//RemoveNode()
+	
 	void RetirerNoeud(Noeud<T>* pointeur, T valeur) {
 
 		if (_arbre->_racine != NULL) {
@@ -289,123 +264,132 @@ struct ArbreAVL
 	/********************************************************************************************************************/
 														//BALANCEMENT//
 	/********************************************************************************************************************/
-	void TestDebalancement(Noeud<T>* nouveauNoeud ) {
-		Noeud<T>* NoeudDebalance = NULL;
-		size_t compteur{0};
-		MiseAJourHauteur(_arbre->_racine);
-		if (_arbre->_hauteur > 1) {
+	
+	int FacteurDeBalancement(Noeud<T>* noeud) {
 
-			/*On trouve et on assigne le noeud débalancé le plus proche du dernier ajout */
-			NoeudDebalance = TrouverDebalancement(nouveauNoeud); 
+		if (noeud == NULL) 
+			return 0;
+		return   (calculerHauteur(noeud->_droite) + 1) - (calculerHauteur(noeud->_gauche) + 1);
+	}
 
-			/*Le il y a débalancement dans l'arbre, on procède au test pour effectuer les rotations*/
-			if (NoeudDebalance != NULL)
-			{
-				
-				/*Si l'équilibre est plus grand que 1, on sait que le déséquilibre arrive dans le sous-arbre gauche*/
-				/*Si la valeur du dernier ajout est plus petite que la valeur du noeud débalancé, on sait qu'il s'agit de l'enfant gauche*/
+	/*Noeud<T>* DetermineOuDebalancement(Noeud<T>* noeud) {
 
-				if (Equilibre(NoeudDebalance) > 1 && nouveauNoeud->_valeur < NoeudDebalance->_gauche->_valeur){/*Gauche Gauche*/
-					compteur++;
-					cout << "Debalancement " << compteur << " - Gauche gauche" << endl;
-					RotationDroite(NoeudDebalance);
-				}
-				
-				if (Equilibre(NoeudDebalance) > 1 && nouveauNoeud->_valeur > NoeudDebalance->_gauche->_valeur){/*Gauche Droite*/
-					compteur++;
-					cout << "Debalancement " << compteur << " - Gauche droite" << endl;
-					RotationGauche(NoeudDebalance->_gauche);
-					RotationDroite(NoeudDebalance);
-				}
-				
-				if (Equilibre(NoeudDebalance) < -1 && nouveauNoeud->_valeur > NoeudDebalance->_droite->_valeur){/*Droite Droite*/
-					compteur++;
-					cout << "Debalancement " << compteur << " - Droite droite" << endl;
-					RotationGauche(NoeudDebalance);
-				}
-				
-				if (Equilibre(NoeudDebalance) < -1 && nouveauNoeud->_valeur < NoeudDebalance->_droite->_valeur){/*Droite Gauche*/
-					compteur++;
-					cout << "Debalancement " << compteur << " - Droite gauche" << endl;
-					RotationDroite(NoeudDebalance->_droite);
-					RotationGauche(NoeudDebalance);
-				}
+
+
+	}*/
+
+	bool isUnbalancedLeft(int factor) {
+		return factor < -1;
+	}
+
+	bool isUnbalancedRight(int factor) {
+		return factor > 1;
+	}
+
+	bool isUnbalanced(int factor) {
+
+		return factor > 1 || factor < -1;
+	}
+
+
+
+	bool isSimpleLeftCase(int parentFactor, int childFactor) {
+
+		return parentFactor == 2 && childFactor == 1;
+	}
+
+	bool isRightLeftCase(int parentFactor, int childFactor) {
+
+		return parentFactor == 2 && childFactor == -1;
+	}
+
+	bool isSimpleRightCase(int parentFactor, int childFactor) {
+
+		return parentFactor == -2 && childFactor == -1;
+	}
+
+	bool isLeftRightCase(int parentFactor, int childFactor) {
+
+		return parentFactor == -2 && childFactor == 1;
+	}
+
+
+
+	Noeud<T>* simpleLeft(Noeud<T>* node) {
+
+		Noeud<T>* X = node->_droite;
+		Noeud<T>* Y = X->_gauche;
+
+		X->_gauche = node;
+		node->_droite = Y;
+		return X;
+	}
+
+	Noeud<T>* simpleRight(Noeud<T>* node) {
+		Noeud<T>* X = node->_gauche;
+		Noeud<T>* Y = X->_droite;
+
+		X->_droite = node;
+		node->_gauche = Y;
+		return X;
+
+	}
+
+	Noeud<T>* RightLeft(Noeud<T>* node) {
+
+		node->_droite = simpleRight(node->_droite);
+		node = simpleLeft(node);
+
+		return node;
+	}
+
+	Noeud<T>* leftRight(Noeud<T>* node) {
+
+		node->_gauche = simpleLeft(node->_gauche);
+		node = simpleRight(node);
+
+		return node;
+	}
+
+
+	Noeud<T>* Balancement(Noeud<T>* noeud) {
+
+
+		int parentFactor = FacteurDeBalancement(noeud);
+
+		if (isUnbalanced(parentFactor)) {
+
+			if (isUnbalancedLeft(parentFactor)) {
+
+				int childFactor = FacteurDeBalancement(noeud->_gauche);
+
+				if (isSimpleRightCase(parentFactor, childFactor))
+					noeud = simpleRight(noeud);
+
+				else if (isLeftRightCase(parentFactor, childFactor))
+					noeud = leftRight(noeud);
+
+				else
+					noeud = simpleRight(noeud);
+
 			}
+			if (isUnbalancedRight(parentFactor)) {
+
+				int childFactor = FacteurDeBalancement(noeud->_droite);
+
+				if (isSimpleLeftCase(parentFactor, childFactor))
+					noeud = simpleLeft(noeud);
+
+				else if (isRightLeftCase(parentFactor, childFactor))
+					noeud = RightLeft(noeud);
+
+				else
+					noeud = simpleLeft(noeud);
+			}
+
 		}
+		return noeud;
 	}
-	/*Fonction de calcul de l'équilibre d'une branche */
-	int Equilibre(Noeud<T>* noeud) 
-	{
-		int balance_factor, hauteurD, hauteurG;
-		if (noeud->_droite != NULL)
-			hauteurD = (noeud->_droite->_hauteur) + 1;
-		else 
-			hauteurD = 0 ;
-		if (noeud->_gauche != NULL)
-			hauteurG = (noeud->_gauche->_hauteur) + 1;
-		else 
-			hauteurG = 0 ;
-
-		balance_factor = hauteurG - hauteurD;
-
-		return balance_factor;
-	}
-
-	/*Fonction pour trouver et retourné le noeud débalancé en paratant du dernier ajout*/
-	Noeud<T>* TrouverDebalancement(Noeud<T>* noeud)
-	{
-		if (noeud == NULL)
-			return NULL;
-
-		else if (Equilibre(noeud) < -1 || Equilibre(noeud) > 1)
-			return noeud;
-		else
-			TrouverDebalancement(noeud->_parent);
-	}
-
-	void RotationGauche(Noeud<T>* pivot)
-	{
-		Noeud<T>* Temp1 = pivot->_droite;
-		Noeud<T>* Temp2 = Temp1->_gauche;
-		cout << "Rotation gauche de " << Temp1->_valeur << " et " << pivot->_valeur << endl;
-		Temp1->_gauche = pivot;
-		Temp1->_parent = pivot->_parent;
-
-		pivot->_parent = Temp1;
-		pivot->_droite = Temp2;
-		if (pivot == _arbre->_racine)
-		{
-			_arbre->_racine = Temp1;
-		}
-		else if (Temp1->_valeur < Temp1->_parent->_valeur)
-			Temp1->_parent->_gauche = Temp1;
-		else if (Temp1->_valeur >= Temp1->_parent->_valeur)
-			Temp1->_parent->_droite = Temp1;
-		
-
-	}
-	void RotationDroite(Noeud<T>* pivot)
-	{
-		Noeud<T>* Temp1 = pivot->_gauche;
-		Noeud<T>* Temp2 = Temp1->_droite;
-		cout << "Rotation droite de " << Temp1->_valeur << " et " << pivot->_valeur << endl;
-		Temp1->_droite = pivot;
-		Temp1->_parent = pivot->_parent;
-
-		pivot->_parent = Temp1;
-		pivot->_gauche = Temp2;
-		if (pivot == _arbre->_racine)
-		{
-			_arbre->_racine = Temp1;
-		}
-		else if (Temp1->_valeur < Temp1->_parent->_valeur)
-			Temp1->_parent->_gauche = Temp1;
-		else if (Temp1->_valeur >= Temp1->_parent->_valeur)
-			Temp1->_parent->_droite = Temp1;
-		
-	}
-
-
 	/********************************************************************************************************************/
 														//PARCOURS//
 	/********************************************************************************************************************/
@@ -469,118 +453,216 @@ struct ArbreAVL
 			cout << "La valeur " << valeur << " ne se trouve pas dans l'arbre!";
 	}
 
-	void afficherGraphique()
-	{
 
-		if (_arbre->_racine == NULL)
-			return;
+	const int SCREEN_WIDTH = 120;
+	const int INITIAL_Y = 0;
+	Console c;
 
-		// Permet de cacher les noeuds NULL au lieu d'afficher des XX
-		bool afficherGraphiqueNoeudsNull = true;
-
-		std::string arbre = "";
-		std::string espace = "  ";
-		std::string lienGauche = " /";
-		std::string lienDroite = "\\ ";
-		std::string noeudNull = afficherGraphiqueNoeudsNull ? "XX" : "  ";
-
-		std::vector< Noeud<T>* > noeuds;
-		int largeurParent = 1;
-		int indexParent = 0;
-
-		_arbre->_hauteur = calculerHauteur();
-
-		while (_arbre->_hauteur > 0)
-		{
-			if (noeuds.empty())
-			{
-				// Afficher le premier noeud de l'arbre
-				noeuds.push_back(_arbre->_racine);
-				for (int i = 0; i < pow(2, _arbre->_hauteur - 1); ++i)
-					arbre += espace;
-
-				char debutString[10] = "  ";
-				if (_arbre->_racine != NULL)
-					sprintf_s(debutString, "%2d", _arbre->_racine->_valeur);
-				arbre += debutString;
-			}
-			else
-			{
-				// Afficher les lignes entre les noeuds
-				for (int i = 0; i < largeurParent; ++i)
-				{
-					int espaceAvant = (int)pow(2, _arbre->_hauteur) - 1;
-					int espaceApres = espaceAvant - 1;
-
-					int espaceGauche = (i != 0 ? espaceApres : 0) + espaceAvant;
-					for (int i = 0; i < espaceGauche; ++i)
-						arbre += espace;
-
-					Noeud<T>* parent = noeuds[indexParent + i];
-					Noeud<T>* gauche = parent != NULL ? parent->_gauche : NULL;
-					Noeud<T>* droite = parent != NULL ? parent->_droite : NULL;
-
-					arbre += (gauche == NULL && !afficherGraphiqueNoeudsNull) ? espace : lienGauche;
-					arbre += espace;
-					arbre += (droite == NULL && !afficherGraphiqueNoeudsNull) ? espace : lienDroite;
-				}
-
-				arbre += "\n";
-
-				// Afficher une hauteur de noeuds de l'arbre
-				for (int i = 0; i < largeurParent; ++i)
-				{
-					Noeud<T>* parent = noeuds[indexParent++];
-					Noeud<T>* gauche = parent != NULL ? parent->_gauche : NULL;
-					Noeud<T>* droite = parent != NULL ? parent->_droite : NULL;
-					noeuds.push_back(gauche);
-					noeuds.push_back(droite);
-
-					int espaceAvant = (int)pow(2, _arbre->_hauteur - 1);
-					int espaceApres = espaceAvant - 1;
-
-					int espaceGauche = (i != 0 ? espaceApres : 0) + espaceAvant;
-					for (int i = 0; i < espaceGauche; ++i)
-						arbre += espace;
-
-					if (gauche != NULL)
-					{
-						char temp[10];
-						sprintf_s(temp, "%2d", gauche->_valeur);
-						arbre += temp;
-					}
-					else
-					{
-						arbre += noeudNull;
-					}
-
-					int espaceDroite = espaceApres + espaceAvant;
-					for (int i = 0; i < espaceDroite; ++i)
-						arbre += espace;
-
-					if (droite != NULL)
-					{
-						char temp[10];
-						sprintf_s(temp, "%2d", droite->_valeur);
-						arbre += temp;
-					}
-					else
-					{
-						arbre += noeudNull;
-					}
-				}
-
-				largeurParent *= 2;
-			}
-
-			arbre += "\n";
-
-			_arbre->_hauteur -= 1;
+	int getDisplayedRowByDepth(int maxDepth, int depthOfNodeToPrint) {
+		if (depthOfNodeToPrint == 0) {
+			return 0;
 		}
+		int acc = (int)pow(2, maxDepth - (depthOfNodeToPrint - 1));
 
-		cout << arbre.c_str();
-		cout << "\n";
+		int depth = getDisplayedRowByDepth(maxDepth, depthOfNodeToPrint - 1) + acc;
+		return depth;
+
 	}
+
+	int getMaxWidth(int depth) {
+		return (int)pow(2, depth + 2) - 2;
+	}
+	void printNode(Noeud<T>* node, int x, int y, int maxDepth, int nodeDepth) {
+		cout << node->_valeur;
+		int nextRowToPrint = getDisplayedRowByDepth(maxDepth, nodeDepth + 1);
+		if (node->_gauche != NULL) {
+			int leftX = x, leftY = y;
+			printLeftLink(leftX, leftY, nextRowToPrint);
+			gotoxy(--leftX, leftY);
+			cout << std::setw(2) << std::right;
+			printNode(node->_gauche, leftX, leftY, maxDepth, nodeDepth + 1);
+		}
+		if (node->_droite != NULL) {
+			int rightX = x + 1, rightY = y;
+			printRightLink(rightX, rightY, nextRowToPrint);
+			gotoxy(rightX, rightY);
+			cout << std::setw(2) << std::left;
+			printNode(node->_droite, rightX, rightY, maxDepth, nodeDepth + 1);
+		}
+	}
+
+	void showTree(Noeud<T>* root, int maxDepth) {
+		if (root == NULL) {
+			showEmptyTreeMessage();
+		}
+		else {
+			int maxWidth = getMaxWidth(maxDepth);
+			resizeScreen(maxWidth, getDisplayedRowByDepth(maxDepth, maxDepth));
+			gotoxy(maxWidth / 2 + maxDepth, INITIAL_Y);
+			printNode(root, maxWidth / 2 + maxDepth, INITIAL_Y, maxDepth, 0);
+			_getch();
+			//clrscr();
+		}
+	}
+
+	void showEmptyTreeMessage() {
+		cout << endl << endl << endl << endl << endl << endl
+			<< "L'arbre est vide!"
+			<< endl << endl << endl << endl;
+		_getch();
+		clrscr();
+	}
+
+	void resizeScreen(int maxWidth, int maxHeight)
+	{
+		int cols = c.get_wColumn();
+		int rows = c.get_wLines();
+		int x = maxWidth + 5 > cols ? maxWidth + 5 + 1 : cols;
+		int y = maxHeight + 1 > rows ? maxHeight + 1 : rows;
+		c.set_wSize(x, y);
+	}
+
+	void printRightLink(int& x, int& y, int stopAt)
+	{
+		gotoxy(++x, ++y);
+		while (y < stopAt) {
+			cout << '\\';
+			gotoxy(++x, ++y);
+		}
+	}
+
+	void printLeftLink(int& x, int& y, int stopAt)
+	{
+		gotoxy(--x, ++y);
+		while (y < stopAt) {
+			cout << '/';
+			gotoxy(--x, ++y);
+		}
+	}
+
+	
+
+
+
+
+
+
+
+
+
+
+	//void afficherGraphique()
+	//{
+
+	//	if (_arbre->_racine == NULL)
+	//		return;
+
+	//	// Permet de cacher les noeuds NULL au lieu d'afficher des XX
+	//	bool afficherGraphiqueNoeudsNull = true;
+
+	//	std::string arbre = "";
+	//	std::string espace = "  ";
+	//	std::string lienGauche = " /";
+	//	std::string lienDroite = "\\ ";
+	//	std::string noeudNull = afficherGraphiqueNoeudsNull ? "XX" : "  ";
+
+	//	std::vector< Noeud<T>* > noeuds;
+	//	int largeurParent = 1;
+	//	int indexParent = 0;
+
+	//	_arbre->_hauteur = calculerHauteur(_arbre->_racine);
+
+	//	while (_arbre->_hauteur > 0)
+	//	{
+	//		if (noeuds.empty())
+	//		{
+	//			// Afficher le premier noeud de l'arbre
+	//			noeuds.push_back(_arbre->_racine);
+	//			for (int i = 0; i < pow(2, _arbre->_hauteur - 1); ++i)
+	//				arbre += espace;
+
+	//			char debutString[10] = "  ";
+	//			if (_arbre->_racine != NULL)
+	//				sprintf_s(debutString, "%2d", _arbre->_racine->_valeur);
+	//			arbre += debutString;
+	//		}
+	//		else
+	//		{
+	//			// Afficher les lignes entre les noeuds
+	//			for (int i = 0; i < largeurParent; ++i)
+	//			{
+	//				int espaceAvant = (int)pow(2, _arbre->_hauteur) - 1;
+	//				int espaceApres = espaceAvant - 1;
+
+	//				int espaceGauche = (i != 0 ? espaceApres : 0) + espaceAvant;
+	//				for (int i = 0; i < espaceGauche; ++i)
+	//					arbre += espace;
+
+	//				Noeud<T>* parent = noeuds[indexParent + i];
+	//				Noeud<T>* gauche = parent != NULL ? parent->_gauche : NULL;
+	//				Noeud<T>* droite = parent != NULL ? parent->_droite : NULL;
+
+	//				arbre += (gauche == NULL && !afficherGraphiqueNoeudsNull) ? espace : lienGauche;
+	//				arbre += espace;
+	//				arbre += (droite == NULL && !afficherGraphiqueNoeudsNull) ? espace : lienDroite;
+	//			}
+
+	//			arbre += "\n";
+
+	//			// Afficher une hauteur de noeuds de l'arbre
+	//			for (int i = 0; i < largeurParent; ++i)
+	//			{
+	//				Noeud<T>* parent = noeuds[indexParent++];
+	//				Noeud<T>* gauche = parent != NULL ? parent->_gauche : NULL;
+	//				Noeud<T>* droite = parent != NULL ? parent->_droite : NULL;
+	//				noeuds.push_back(gauche);
+	//				noeuds.push_back(droite);
+
+	//				int espaceAvant = (int)pow(2, _arbre->_hauteur - 1);
+	//				int espaceApres = espaceAvant - 1;
+
+	//				int espaceGauche = (i != 0 ? espaceApres : 0) + espaceAvant;
+	//				for (int i = 0; i < espaceGauche; ++i)
+	//					arbre += espace;
+
+	//				if (gauche != NULL)
+	//				{
+	//					char temp[10];
+	//					sprintf_s(temp, "%2d", gauche->_valeur);
+	//					arbre += temp;
+	//				}
+	//				else
+	//				{
+	//					arbre += noeudNull;
+	//				}
+
+	//				int espaceDroite = espaceApres + espaceAvant;
+	//				for (int i = 0; i < espaceDroite; ++i)
+	//					arbre += espace;
+
+	//				if (droite != NULL)
+	//				{
+	//					char temp[10];
+	//					sprintf_s(temp, "%2d", droite->_valeur);
+	//					arbre += temp;
+	//				}
+	//				else
+	//				{
+	//					arbre += noeudNull;
+	//				}
+	//			}
+
+	//			largeurParent *= 2;
+	//		}
+
+	//		arbre += "\n";
+
+	//		_arbre->_hauteur -= 1;
+	//	}
+
+	//	cout << arbre.c_str();
+	//	cout << "\n";
+	//}
 
 };
 

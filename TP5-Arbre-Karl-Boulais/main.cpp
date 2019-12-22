@@ -35,11 +35,14 @@ int main()
 	const int ajouts[] = { 15, 10, 5, 1, 3, 25, 35, 45, 40 };
 	//const int ajouts[] =   { 1, 3, 5, 10, 15, 25, 35, 40, 45 };
 	
-	for (size_t i{ 0 }; i < 9; i++) {
+	/*for (size_t i{ 0 }; i < 9; i++) {
 		arbreAVL.AjouterArbreMain(ajouts[i]);
+	}*/
+	for (size_t i{ 1 }; i < 30; i++) {
+		arbreAVL.AjouterArbreMain(i);
 	}
 	
-	do {
+	/*do {
 
 		clrscr();
 		PrintMenu();
@@ -55,9 +58,9 @@ int main()
 		case 5:														break;
 		}
 
-	} while (menuSelect != 5);
+	} while (menuSelect != 5);*/
 	
-	arbreAVL.afficherGraphique();
+	arbreAVL.showTree(arbreAVL._arbre->_racine, arbreAVL.calculerHauteur(arbreAVL._arbre->_racine));
 
 	_getch();
 
