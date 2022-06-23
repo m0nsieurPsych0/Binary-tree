@@ -1,2 +1,1 @@
-# 420-B31-VM-TP-Arbre-Karl-Boulais
-Arbre balancé
+# Balanced Binary Tree in C++
